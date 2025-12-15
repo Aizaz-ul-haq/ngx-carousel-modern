@@ -77,6 +77,20 @@ export class CarouselComponent implements OnInit, OnDestroy, OnChanges, AfterVie
   private autoPlayTimer?: ReturnType<typeof setInterval>;
   isAnimating: boolean = false; // Public for template access
   private smoothTransition: boolean = true;
+  private pendingNavDelta: number = 0;
+  private pendingGoToIndex: number | null = null;
+  isSnapping: boolean = false;
+
+  private readonly onWrapperTransitionEnd = (event: TransitionEvent): void => {
+    // `transitionend` bubbles; ignore events from slide/item transitions.
+    const wrapper = this.carouselWrapper?.nativeElement;
+    if (!wrapper) return;
+    if (event.target !== wrapper) return;
+    if (event.propertyName !== 'transform') return;
+
+    wrapper.removeEventListener('transitionend', this.onWrapperTransitionEnd);
+    this.handleInfiniteJump();
+  };
 
   // Drag/Swipe properties
   private dragStartX: number = 0;
@@ -197,7 +211,9 @@ export class CarouselComponent implements OnInit, OnDestroy, OnChanges, AfterVie
     }
 
     if (smooth) {
-      wrapper.addEventListener('transitionend', this.handleInfiniteJump.bind(this), { once: true });
+      // Ensure we only react to the wrapper's own transform transition.
+      wrapper.removeEventListener('transitionend', this.onWrapperTransitionEnd);
+      wrapper.addEventListener('transitionend', this.onWrapperTransitionEnd);
     }
   }
 
@@ -208,22 +224,47 @@ export class CarouselComponent implements OnInit, OnDestroy, OnChanges, AfterVie
     if (isAtEndClone) {
       const originalIndex = this.currentIndex - (this.carouselItems.length - this.cloneCount);
       this.currentIndex = this.cloneCount + originalIndex;
+      this.setSnappingForOneFrame();
       this.updateCarousel(false);
     } else if (isAtStartClone) {
       const originalIndex = this.cloneCount - this.currentIndex;
       this.currentIndex = this.carouselItems.length - this.cloneCount - originalIndex;
+      this.setSnappingForOneFrame();
       this.updateCarousel(false);
     }
 
     this.isAnimating = false;
     this.emitSlideChange();
+
+    // Process any queued interactions that happened during the animation.
+    // We process one at a time to keep transitions smooth and indices consistent.
+    if (this.pendingGoToIndex !== null) {
+      const target = this.pendingGoToIndex;
+      this.pendingGoToIndex = null;
+      this.goToSlide(target);
+      return;
+    }
+
+    if (this.pendingNavDelta !== 0) {
+      if (this.pendingNavDelta > 0) {
+        this.pendingNavDelta--;
+        this.nextSlide();
+      } else {
+        this.pendingNavDelta++;
+        this.previousSlide();
+      }
+    }
   }
 
   /**
    * Navigate to next slide
    */
   nextSlide(): void {
-    if (this.items.length === 0 || this.isAnimating) return;
+    if (this.items.length === 0) return;
+    if (this.isAnimating) {
+      this.pendingNavDelta = Math.min(this.pendingNavDelta + 1, 10);
+      return;
+    }
     this.currentIndex++;
     this.updateCarousel(true);
     this.resetAutoPlay();
@@ -233,7 +274,11 @@ export class CarouselComponent implements OnInit, OnDestroy, OnChanges, AfterVie
    * Navigate to previous slide
    */
   previousSlide(): void {
-    if (this.items.length === 0 || this.isAnimating) return;
+    if (this.items.length === 0) return;
+    if (this.isAnimating) {
+      this.pendingNavDelta = Math.max(this.pendingNavDelta - 1, -10);
+      return;
+    }
     this.currentIndex--;
     this.updateCarousel(true);
     this.resetAutoPlay();
@@ -243,7 +288,11 @@ export class CarouselComponent implements OnInit, OnDestroy, OnChanges, AfterVie
    * Navigate to specific slide
    */
   goToSlide(index: number): void {
-    if (index < 0 || index >= this.items.length || this.isAnimating) return;
+    if (index < 0 || index >= this.items.length) return;
+    if (this.isAnimating) {
+      this.pendingGoToIndex = index;
+      return;
+    }
     // Map original index to carouselItems index
     this.currentIndex = this.cloneCount + index;
     this.updateCarousel(true);
@@ -531,5 +580,15 @@ export class CarouselComponent implements OnInit, OnDestroy, OnChanges, AfterVie
       .split(/\s+/g)
       .map(v => v.trim())
       .filter(Boolean);
+  }
+
+  private setSnappingForOneFrame(): void {
+    this.isSnapping = true;
+    // Two RAFs so the class applies, the snap happens, then we remove it after paint.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this.isSnapping = false;
+      });
+    });
   }
 }

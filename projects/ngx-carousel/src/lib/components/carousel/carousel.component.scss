@@ -9,6 +9,15 @@
   margin: 0 auto;
   padding-bottom: 32px; // Space for dots under slides (arrows are vertically centered)
   // max-width and padding are set dynamically via ngStyle
+
+  &.snapping {
+    // During the infinite-loop "teleport" from a clone to the real slide,
+    // disable transitions so nothing looks like it restarts.
+    .carousel-wrapper,
+    .carousel-item {
+      transition: none !important;
+    }
+  }
 }
 
 // Carousel Wrapper (matches JS version)

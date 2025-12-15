@@ -3,6 +3,7 @@
   *ngIf="items.length > 0" 
   [ngClass]="containerClass"
   [ngStyle]="getMergedContainerStyles()"
+  [class.snapping]="isSnapping"
   #carouselContainer
 >
   <!-- Carousel Wrapper (matches JS version) -->
@@ -37,8 +38,7 @@
     type="button"
     class="nav-button prev-button"
     *ngIf="showArrows && items.length > 1"
-    [disabled]="isAnimating"
-    (click)="!isAnimating && previousSlide(); $event.stopPropagation()"
+    (click)="previousSlide(); $event.stopPropagation()"
     (mousedown)="$event.stopPropagation()"
     (touchstart)="$event.stopPropagation()"
     aria-label="Previous slide"
@@ -50,8 +50,7 @@
     type="button"
     class="nav-button next-button"
     *ngIf="showArrows && items.length > 1"
-    [disabled]="isAnimating"
-    (click)="!isAnimating && nextSlide(); $event.stopPropagation()"
+    (click)="nextSlide(); $event.stopPropagation()"
     (mousedown)="$event.stopPropagation()"
     (touchstart)="$event.stopPropagation()"
     aria-label="Next slide"
@@ -66,8 +65,7 @@
         *ngFor="let item of items; let i = index"
         class="dot"
         [class.active]="isActive(i)"
-        [disabled]="isAnimating"
-        (click)="!isAnimating && goToSlide(i)"
+        (click)="goToSlide(i)"
         [attr.aria-label]="'Go to slide ' + (i + 1)"
         [attr.aria-current]="isActive(i) ? 'true' : null"
       ></button>
