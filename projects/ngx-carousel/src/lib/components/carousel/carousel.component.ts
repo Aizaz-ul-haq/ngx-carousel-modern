@@ -38,7 +38,13 @@ export class CarouselComponent implements OnInit, OnDestroy, OnChanges, AfterVie
   // Size configuration inputs
   @Input() maxWidth: string | number = '1400px';
   @Input() slideHeight: string | number = '500px';
-  @Input() sideSlideScale: number = 0.75;
+  // Increase default so side slides don't look overly "far" from the active slide.
+  @Input() sideSlideScale: number = 0.85;
+  /**
+   * Scale applied to the active (center) slide. Use values > 1 to make the active slide
+   * feel more dominant while keeping side slides visually close via `sideSlideScale`.
+   */
+  @Input() activeSlideScale: number = 1.1;
   @Input() slideGap: string | number = '8px'; // Gap between slides - control spacing between slides (default: 8px)
   @Input() containerPadding: string | number = '20px';
   

@@ -84,7 +84,8 @@
 // Navigation Buttons - Blue circular with white arrows, positioned below left and right slides
 .nav-button {
   position: absolute;
-  bottom: 130px;
+  /* Lower = smaller `bottom` */
+  bottom: var(--carousel-nav-bottom, 95px);
   background: var(--carousel-nav-bg, rgba(234, 243, 255, 0.95));
   color: var(--carousel-nav-color, #2B5AA5);
   border: var(--carousel-nav-border, 1px solid rgba(207, 224, 255, 0.95));
@@ -128,7 +129,8 @@
 // Dots Container - Positioned below arrows
 .dots-container {
   position: absolute;
-  bottom: 103px;
+  /* Lower = smaller `bottom` */
+  bottom: var(--carousel-dots-bottom, 88px);
   left: 50%;
   transform: translateX(-50%);
   display: flex;

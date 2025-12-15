@@ -27,7 +27,7 @@
       [style.background-image]="'url(' + item.imageUrl + ')'"
       [style.background-color]="slideBackgroundColor"
       [ngStyle]="getSlideStyles()"
-      [style.transform]="isItemActive(i) ? 'scale(1)' : 'scale(' + sideSlideScale + ')'"
+      [style.transform]="isItemActive(i) ? 'scale(' + activeSlideScale + ')' : 'scale(' + sideSlideScale + ')'"
       (click)="!getIsDragging() && !isAnimating && goToSlide(getOriginalIndex(i))"
     >
     </div>
