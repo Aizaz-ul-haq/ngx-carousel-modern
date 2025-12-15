@@ -1,13 +1,17 @@
 {
   "name": "angular-carousel-modern",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A modern, customizable carousel component for Angular 16+ with drag/swipe support, responsive design, and flexible configuration options",
   "author": "",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "git+https://github.com/Aizaz-ul-haq/ngx-carousel-modern.git"
   },
+  "bugs": {
+    "url": "https://github.com/Aizaz-ul-haq/ngx-carousel-modern/issues"
+  },
+  "homepage": "https://github.com/Aizaz-ul-haq/ngx-carousel-modern#readme",
   "keywords": [
     "angular",
     "carousel",
