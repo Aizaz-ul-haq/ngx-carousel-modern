@@ -1,0 +1,75 @@
+<div 
+  class="carousel-container" 
+  *ngIf="items.length > 0" 
+  [ngClass]="containerClass"
+  [ngStyle]="getMergedContainerStyles()"
+  #carouselContainer
+>
+  <!-- Carousel Wrapper (matches JS version) -->
+  <div 
+    class="carousel-wrapper"
+    #carouselWrapper
+    [class.dragging]="getIsDragging()"
+    (touchstart)="onDragStart($event)"
+    (touchmove)="onDragMove($event)"
+    (touchend)="onDragEnd($event)"
+    (mousedown)="onDragStart($event)"
+    (mousemove)="onDragMove($event)"
+    (mouseup)="onDragEnd($event)"
+    (mouseleave)="onDragEnd($event)"
+  >
+    <!-- Render all carousel items (original + clones) -->
+    <div
+      *ngFor="let item of carouselItems; let i = index"
+      class="carousel-item"
+      [class.active]="isItemActive(i)"
+      [style.background-image]="'url(' + item.imageUrl + ')'"
+      [style.background-color]="slideBackgroundColor"
+      [ngStyle]="getSlideStyles()"
+      [style.transform]="isItemActive(i) ? 'scale(1)' : 'scale(' + sideSlideScale + ')'"
+      (click)="!getIsDragging() && !isAnimating && goToSlide(getOriginalIndex(i))"
+    >
+    </div>
+  </div>
+
+  <!-- Navigation Arrows -->
+  <button
+    type="button"
+    class="nav-button prev-button"
+    *ngIf="showArrows && items.length > 1"
+    [disabled]="isAnimating"
+    (click)="!isAnimating && previousSlide(); $event.stopPropagation()"
+    (mousedown)="$event.stopPropagation()"
+    (touchstart)="$event.stopPropagation()"
+    aria-label="Previous slide"
+  >
+    ←
+  </button>
+  
+  <button
+    type="button"
+    class="nav-button next-button"
+    *ngIf="showArrows && items.length > 1"
+    [disabled]="isAnimating"
+    (click)="!isAnimating && nextSlide(); $event.stopPropagation()"
+    (mousedown)="$event.stopPropagation()"
+    (touchstart)="$event.stopPropagation()"
+    aria-label="Next slide"
+  >
+    →
+  </button>
+
+  <!-- Dots Container -->
+  <div class="dots-container" *ngIf="showDots && items.length > 1">
+      <button
+        type="button"
+        *ngFor="let item of items; let i = index"
+        class="dot"
+        [class.active]="isActive(i)"
+        [disabled]="isAnimating"
+        (click)="!isAnimating && goToSlide(i)"
+        [attr.aria-label]="'Go to slide ' + (i + 1)"
+        [attr.aria-current]="isActive(i) ? 'true' : null"
+      ></button>
+  </div>
+</div>

@@ -1,0 +1,17 @@
+:host ::ng-deep lib-carousel.demo-carousel .nav-button {
+  color: red;
+}
+
+.demo-container {
+  width: 100%;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0 56px;
+}
+
+main {
+  width: 100%;
+}

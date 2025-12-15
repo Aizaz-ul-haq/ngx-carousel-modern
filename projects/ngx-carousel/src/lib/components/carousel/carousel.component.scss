@@ -1,0 +1,258 @@
+// Carousel Container (matches JS version)
+.carousel-container {
+  position: relative;
+  width: 100%;
+  max-width: 1400px;
+  height: auto;
+  min-height: 560px;
+  overflow: hidden; // Prevent both horizontal and vertical scrollbars
+  margin: 0 auto;
+  padding-bottom: 32px; // Space for dots under slides (arrows are vertically centered)
+  // max-width and padding are set dynamically via ngStyle
+}
+
+// Carousel Wrapper (matches JS version)
+.carousel-wrapper {
+  display: flex;
+  position: relative;
+  left: 0;
+  top: 0;
+  height: auto;
+  width: 100%;
+  align-items: center;
+  // Smooth transition for the wrapper's horizontal movement
+  transition: transform 1.5s cubic-bezier(0.4, 0.0, 0.2, 1); // Slower transition
+  
+  &.dragging {
+    cursor: grabbing;
+    transition: none !important;
+    
+    .carousel-item {
+      pointer-events: none;
+    }
+  }
+}
+
+// Carousel Item (matches JS version)
+.carousel-item {
+  min-width: 200px; // Will be overridden by ngStyle
+  height: 250px; // Will be overridden by ngStyle
+  margin: 0; // Inline styles handle spacing
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5em;
+  font-weight: bold;
+  border-radius: var(--carousel-slide-radius, 12px);
+  cursor: pointer;
+  box-shadow: var(--carousel-slide-shadow, 0 18px 45px rgba(0, 0, 0, 0.18));
+  flex-shrink: 0;
+  
+  /* Initial state: scaled down and lower z-index */
+  /* Transform is set inline via Angular binding */
+  z-index: 1;
+  opacity: 0.7;
+  filter: saturate(0.9);
+
+  /* Smooth transition for scale and z-index */
+  transition: transform 1.5s cubic-bezier(0.4, 0.0, 0.2, 1),
+              z-index 1.5s, 
+              opacity 1.5s,
+              filter 1.5s;
+  
+  &.active {
+    z-index: 10; /* Bring to front */
+    opacity: 1;
+    filter: none;
+    box-shadow: var(--carousel-slide-shadow-active, 0 25px 60px rgba(0, 0, 0, 0.22));
+  }
+}
+
+// Navigation Buttons - Blue circular with white arrows, positioned below left and right slides
+.nav-button {
+  position: absolute;
+  bottom: 130px;
+  background: var(--carousel-nav-bg, rgba(234, 243, 255, 0.95));
+  color: var(--carousel-nav-color, #2B5AA5);
+  border: var(--carousel-nav-border, 1px solid rgba(207, 224, 255, 0.95));
+  width: var(--carousel-nav-size, 56px);
+  height: var(--carousel-nav-size, 56px);
+  cursor: pointer;
+  z-index: 20;
+  font-size: 1.25em;
+  border-radius: 50%;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.25s, border-color 0.25s, box-shadow 0.25s;
+  box-shadow: 0 10px 26px rgba(16, 24, 40, 0.12);
+  
+  &:hover:not(:disabled) {
+    background: rgba(219, 234, 255, 0.98);
+    border-color: rgba(187, 213, 255, 0.98);
+    box-shadow: 0 14px 34px rgba(16, 24, 40, 0.16);
+  }
+  
+  &:active:not(:disabled) {
+    box-shadow: 0 8px 20px rgba(16, 24, 40, 0.12);
+  }
+  
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  
+  &.prev-button {
+    left: 100px;
+  }
+  
+  &.next-button {
+    right: 100px;
+  }
+}
+
+// Dots Container - Positioned below arrows
+.dots-container {
+  position: absolute;
+  bottom: 103px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 20;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background-color: var(--carousel-dot-color, rgba(219, 231, 245, 1));
+  border: none;
+  opacity: 0.55;
+  cursor: pointer;
+  transition: background-color 0.25s, transform 0.25s, opacity 0.25s;
+  padding: 0;
+  
+  &:hover:not(:disabled) {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  
+  &.active {
+    background-color: var(--carousel-dot-active-color, rgba(139, 184, 255, 1));
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+// Overlay - White box with rounded corners, bottom positioned
+.carousel-overlay {
+  position: absolute;
+  bottom: 24px;
+  background: white;
+  border-radius: 12px;
+  padding: 24px 32px;
+  max-width: 500px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  
+  &.overlay-center {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  &.overlay-left {
+    left: 24px;
+  }
+  
+  &.overlay-right {
+    right: 24px;
+  }
+  
+  .overlay-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #4A90E2; // Blue color for title
+    margin: 0 0 8px 0;
+    line-height: 1.4;
+  }
+  
+  .overlay-description {
+    font-size: 1rem;
+    color: #333333; // Dark gray for description
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .carousel-container {
+    padding-bottom: 26px;
+  }
+  
+  .nav-button {
+    width: 48px;
+    height: 48px;
+    font-size: 1.1em;
+    top: 50%;
+    transform: translateY(-50%);
+    
+    &.prev-button {
+      left: 12px;
+    }
+    
+    &.next-button {
+      right: 12px;
+    }
+  }
+  
+  .dots-container {
+    bottom: 8px;
+  }
+  
+  .carousel-item {
+    min-width: 20px;
+    margin: 20px 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .carousel-container {
+    padding-bottom: 22px;
+  }
+  
+  .nav-button {
+    width: 44px;
+    height: 44px;
+    font-size: 1.05em;
+    top: 50%;
+    transform: translateY(-50%);
+    
+    &.prev-button {
+      left: 10px;
+    }
+    
+    &.next-button {
+      right: 10px;
+    }
+  }
+  
+  .dots-container {
+    bottom: 6px;
+  }
+  
+  .carousel-item {
+    min-width: 120px;
+    margin: 15px 10px;
+  }
+}

@@ -1,0 +1,24 @@
+<div class="demo-container">
+  <main>
+    <lib-carousel
+      hostClass="demo-carousel"
+      [items]="carouselItems"
+      [autoPlay]="true"
+      [autoPlayInterval]="5000"
+      [showArrows]="true"
+      [showDots]="true"
+      [showOverlay]="false"
+      [overlayPosition]="'center'"
+      [maxWidth]="'1400px'"
+      [slideHeight]="'400px'"
+      [sideSlideScale]="0.65"
+      [slideGap]="'1px'"
+      [containerPadding]="'32px'"
+      [dotColor]="'#dbe7f5'"
+      [dotActiveColor]="'#8bb8ff'"
+      [containerStyle]="{ '--carousel-slide-radius': '18px' }"
+      (slideChange)="onSlideChange($event)"
+    ></lib-carousel>
+  </main>
+</div>
+

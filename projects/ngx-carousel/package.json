@@ -1,0 +1,40 @@
+{
+  "name": "angular-carousel-modern",
+  "version": "1.0.1",
+  "description": "A modern, customizable carousel component for Angular 16+ with drag/swipe support, responsive design, and flexible configuration options",
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [
+    "angular",
+    "carousel",
+    "slider",
+    "angular16",
+    "angular17",
+    "angular18",
+    "ngx-carousel",
+    "image-carousel",
+    "responsive",
+    "touch",
+    "drag",
+    "swipe"
+  ],
+  "peerDependencies": {
+    "@angular/common": "^16.0.0 || ^17.0.0 || ^18.0.0",
+    "@angular/core": "^16.0.0 || ^17.0.0 || ^18.0.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false,
+  "main": "fesm2022/angular-carousel-modern.mjs",
+  "module": "fesm2022/angular-carousel-modern.mjs",
+  "es2022": "fesm2022/angular-carousel-modern.mjs",
+  "esm2022": "esm2022/angular-carousel-modern.mjs",
+  "fesm2022": "fesm2022/angular-carousel-modern.mjs",
+  "typings": "index.d.ts"
+}
+
