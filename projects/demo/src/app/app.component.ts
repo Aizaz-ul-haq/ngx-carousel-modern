@@ -25,7 +25,17 @@ export class AppComponent {
       imageUrl: 'assets/slide3.jpeg',
       title: 'Trusted by Businesses Across Qatar',
       description: 'Join thousands of companies that rely on DARB for streamlined tender discovery.'
-    }
+    },
+    {
+      imageUrl: 'assets/slide2.jpeg',
+      title: "Discover Darb's Services",
+      description: 'Explore tools designed to simplify tender management and support smarter business decisions.'
+    },
+    {
+      imageUrl: 'assets/slide1.jpeg',
+      title: 'Find the Right Tenders Fast',
+      description: 'Bid on relevant tenders for your business in one spot.'
+    },
   ];
 
   onSlideChange(index: number): void {

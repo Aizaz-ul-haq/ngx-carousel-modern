@@ -40,10 +40,7 @@ export class CarouselComponent implements OnInit, OnDestroy, OnChanges, AfterVie
   @Input() slideHeight: string | number = '500px';
   // Increase default so side slides don't look overly "far" from the active slide.
   @Input() sideSlideScale: number = 0.85;
-  /**
-   * Scale applied to the active (center) slide. Use values > 1 to make the active slide
-   * feel more dominant while keeping side slides visually close via `sideSlideScale`.
-   */
+
   @Input() activeSlideScale: number = 1.1;
   @Input() slideGap: string | number = '8px'; // Gap between slides - control spacing between slides (default: 8px)
   @Input() containerPadding: string | number = '20px';
@@ -53,10 +50,6 @@ export class CarouselComponent implements OnInit, OnDestroy, OnChanges, AfterVie
   @Input() dotActiveColor: string = '#1E3A8A';
   @Input() slideBackgroundColor: string = 'transparent';
 
-  /**
-   * Optional class(es) to apply to the internal `.carousel-container` element.
-   * This helps consumers scope CSS overrides without relying on global selectors.
-   */
   @Input() containerClass?: string | string[] | Set<string> | { [klass: string]: any };
 
   /**
@@ -226,49 +219,47 @@ export class CarouselComponent implements OnInit, OnDestroy, OnChanges, AfterVie
   handleInfiniteJump(): void {
     const isAtStartClone = this.currentIndex < this.cloneCount;
     const isAtEndClone = this.currentIndex >= this.carouselItems.length - this.cloneCount;
+    let didSnap = false;
 
     if (isAtEndClone) {
       const originalIndex = this.currentIndex - (this.carouselItems.length - this.cloneCount);
       this.currentIndex = this.cloneCount + originalIndex;
-      this.setSnappingForOneFrame();
+      didSnap = true;
+      this.isSnapping = true;
       this.updateCarousel(false);
     } else if (isAtStartClone) {
       const originalIndex = this.cloneCount - this.currentIndex;
       this.currentIndex = this.carouselItems.length - this.cloneCount - originalIndex;
-      this.setSnappingForOneFrame();
+      didSnap = true;
+      this.isSnapping = true;
       this.updateCarousel(false);
     }
 
     this.isAnimating = false;
     this.emitSlideChange();
 
-    // Process any queued interactions that happened during the animation.
-    // We process one at a time to keep transitions smooth and indices consistent.
-    if (this.pendingGoToIndex !== null) {
-      const target = this.pendingGoToIndex;
-      this.pendingGoToIndex = null;
-      this.goToSlide(target);
+    if (didSnap) {
+      // Wait until snapping styles are removed before processing queued actions,
+      // otherwise we may start a "smooth" move with transitions disabled (no transitionend),
+      // leaving isAnimating stuck.
+      this.endSnappingAndThen(() => this.flushQueuedNavigation());
       return;
     }
 
-    if (this.pendingNavDelta !== 0) {
-      if (this.pendingNavDelta > 0) {
-        this.pendingNavDelta--;
-        this.nextSlide();
-      } else {
-        this.pendingNavDelta++;
-        this.previousSlide();
-      }
-    }
+    this.flushQueuedNavigation();
   }
 
   /**
    * Navigate to next slide
    */
-  nextSlide(): void {
+  nextSlide(fromAutoPlay: boolean = false): void {
     if (this.items.length === 0) return;
-    if (this.isAnimating) {
-      this.pendingNavDelta = Math.min(this.pendingNavDelta + 1, 10);
+    if (this.isAnimating || this.isSnapping) {
+      // Important: autoplay should NOT queue actions while we're mid-transition/snapping,
+      // otherwise it "builds up" and appears to speed up.
+      if (!fromAutoPlay) {
+        this.pendingNavDelta = Math.min(this.pendingNavDelta + 1, 10);
+      }
       return;
     }
     this.currentIndex++;
@@ -281,7 +272,7 @@ export class CarouselComponent implements OnInit, OnDestroy, OnChanges, AfterVie
    */
   previousSlide(): void {
     if (this.items.length === 0) return;
-    if (this.isAnimating) {
+    if (this.isAnimating || this.isSnapping) {
       this.pendingNavDelta = Math.max(this.pendingNavDelta - 1, -10);
       return;
     }
@@ -295,7 +286,7 @@ export class CarouselComponent implements OnInit, OnDestroy, OnChanges, AfterVie
    */
   goToSlide(index: number): void {
     if (index < 0 || index >= this.items.length) return;
-    if (this.isAnimating) {
+    if (this.isAnimating || this.isSnapping) {
       this.pendingGoToIndex = index;
       return;
     }
@@ -343,7 +334,7 @@ export class CarouselComponent implements OnInit, OnDestroy, OnChanges, AfterVie
     this.stopAutoPlay();
     if (this.autoPlay && this.items.length > 1) {
       this.autoPlayTimer = setInterval(() => {
-        this.nextSlide();
+        this.nextSlide(true);
       }, this.autoPlayInterval);
     }
   }
@@ -513,7 +504,8 @@ export class CarouselComponent implements OnInit, OnDestroy, OnChanges, AfterVie
       'width': `${width}px`,
       'min-width': `${width}px`,
       'height': `${height}px`,
-      'margin': `${verticalMargin}px ${horizontalMargin}px`
+      // Allow consumers to override margins via CSS vars (e.g. set Y to 0 for top-aligned slides)
+      'margin': `var(--carousel-slide-margin-y, ${verticalMargin}px) var(--carousel-slide-margin-x, ${horizontalMargin}px)`
     };
   }
 
@@ -588,13 +580,34 @@ export class CarouselComponent implements OnInit, OnDestroy, OnChanges, AfterVie
       .filter(Boolean);
   }
 
-  private setSnappingForOneFrame(): void {
-    this.isSnapping = true;
+  private endSnappingAndThen(after?: () => void): void {
     // Two RAFs so the class applies, the snap happens, then we remove it after paint.
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         this.isSnapping = false;
+        after?.();
       });
     });
+  }
+
+  private flushQueuedNavigation(): void {
+    // Process any queued interactions that happened during the animation.
+    // We process one at a time to keep transitions smooth and indices consistent.
+    if (this.pendingGoToIndex !== null) {
+      const target = this.pendingGoToIndex;
+      this.pendingGoToIndex = null;
+      this.goToSlide(target);
+      return;
+    }
+
+    if (this.pendingNavDelta !== 0) {
+      if (this.pendingNavDelta > 0) {
+        this.pendingNavDelta--;
+        this.nextSlide();
+      } else {
+        this.pendingNavDelta++;
+        this.previousSlide();
+      }
+    }
   }
 }

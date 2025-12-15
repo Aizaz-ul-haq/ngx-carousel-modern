@@ -28,7 +28,7 @@
   top: 0;
   height: auto;
   width: 100%;
-  align-items: center;
+  align-items: var(--carousel-wrapper-align-items, center);
   // Smooth transition for the wrapper's horizontal movement
   transition: transform 1.5s cubic-bezier(0.4, 0.0, 0.2, 1); // Slower transition
   
@@ -47,6 +47,7 @@
   min-width: 200px; // Will be overridden by ngStyle
   height: 250px; // Will be overridden by ngStyle
   margin: 0; // Inline styles handle spacing
+  transform-origin: top center;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -86,25 +87,23 @@
   position: absolute;
   /* Lower = smaller `bottom` */
   bottom: var(--carousel-nav-bottom, 95px);
-  background: var(--carousel-nav-bg, rgba(234, 243, 255, 0.95));
-  color: var(--carousel-nav-color, #2B5AA5);
-  border: var(--carousel-nav-border, 1px solid rgba(207, 224, 255, 0.95));
+  // The SVG provides the visual background; keep the button itself transparent.
+  background: transparent;
+  color: var(--carousel-nav-color, #1967D2);
+  border: none;
   width: var(--carousel-nav-size, 56px);
   height: var(--carousel-nav-size, 56px);
   cursor: pointer;
   z-index: 20;
-  font-size: 1.25em;
   border-radius: 50%;
-  line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: background 0.25s, border-color 0.25s, box-shadow 0.25s;
   box-shadow: 0 10px 26px rgba(16, 24, 40, 0.12);
+  padding: 0;
   
   &:hover:not(:disabled) {
-    background: rgba(219, 234, 255, 0.98);
-    border-color: rgba(187, 213, 255, 0.98);
     box-shadow: 0 14px 34px rgba(16, 24, 40, 0.16);
   }
   
@@ -124,6 +123,12 @@
   &.next-button {
     right: 100px;
   }
+}
+
+.nav-icon {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 // Dots Container - Positioned below arrows
